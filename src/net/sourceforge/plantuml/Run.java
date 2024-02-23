@@ -5,12 +5,12 @@
  * (C) Copyright 2009-2024, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
- * 
+ *
  * If you like this project or if you find it useful, you can support us at:
- * 
+ *
  * https://plantuml.com/patreon (only 1$ per month!)
  * https://plantuml.com/paypal
- * 
+ *
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -267,14 +267,19 @@ public class Run {
 	private static void encodeSprite(List<String> result) throws IOException {
 		SpriteGrayLevel level = SpriteGrayLevel.GRAY_16;
 		boolean compressed = false;
+		boolean color = false;
 		final String path;
-		if (result.size() > 1 && result.get(0).matches("(4|8|16)z?")) {
+		if (result.size() > 1 && result.get(0).matches("(4|8|16)z?|color")) {
 			if (result.get(0).startsWith("8")) {
 				level = SpriteGrayLevel.GRAY_8;
 			}
 			if (result.get(0).startsWith("4")) {
 				level = SpriteGrayLevel.GRAY_4;
 			}
+			if (result.get(0).startsWith("color")) {
+				color = true;
+			}
+
 			compressed = StringUtils.goLowerCase(result.get(0)).endsWith("z");
 			path = result.get(1);
 		} else {
@@ -303,9 +308,17 @@ public class Run {
 			im = SImageIO.read(stream);
 		}
 		final String name = getSpriteName(fileName);
-		final String s = compressed ? SpriteUtils.encodeCompressed(im, name, level)
-				: SpriteUtils.encode(im, name, level);
-		System.out.println(s);
+		if (color) {
+			final String s = SpriteUtils.encodeColor(im, name);
+			System.out.println(s);
+		}
+		else
+		{
+			final String s = compressed ? SpriteUtils.encodeCompressed(im, name, level)
+			: SpriteUtils.encode(im, name, level);
+			System.out.println(s);
+		}
+
 	}
 
 	private static String getSpriteName(String fileName) {
